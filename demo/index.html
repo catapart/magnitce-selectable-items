@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selectable Items Demo</title>
+    <link rel="stylesheet" href="./demo-page.css">
+</head>
+<body>
+    <main>
+        <h1>Overview</h1>
+        <div class="overview">
+            <p>The <code>&lt;selectable-items&gt;</code> element provides selection functionality for any arbitrary set of elements.</p>
+            <p>Any element that is a child of the <code>&lt;selectable-items&gt;</code> element will be "selected" whenever clicked (or toggled with enter/select keys), and given a tabIndex attribute for keyboard navigation.</p>
+        </div>
+        <h1>Examples</h1>
+        <article class="basic">
+            <header>Basic Example</header>
+                <p>The <code>&lt;selectable-items&gt;</code> element </p>
+            </div>
+            <div class="example">
+                <div>
+                    <header>Inline</header>
+                    <selectable-items>
+                        <span>A</span>
+                        <span>B</span>
+                        <span>C</span>
+                        <span>D</span>
+                        <span>E</span>
+                    </selectable-items>
+                </div>
+                <div>
+                    <header>Block</header>
+                    <selectable-items>
+                        <div>A</div>
+                        <div>B</div>
+                        <div>C</div>
+                        <div>D</div>
+                        <div>E</div>
+                    </selectable-items>
+                </div>
+            </div>
+        </article>
+        <article class="multi">
+            <header>Multi-select</header>
+            <div class="description">
+                <p>The <code>&lt;selectable-items&gt;</code> element can allow multiple selections by setting the element's <code>multi</code> attribute to <code>true</code>.</p>
+                <p>With multiple select active, the user can hold the <key>Shift</key> or <key>Control</key> keys to select as many as all of the items.</p>
+            </div>
+            <div class="example">
+                <selectable-items multi="true">
+                    <div>Item A</div>
+                    <div>Item B</div>
+                    <div>Item C</div>
+                    <div>Item D</div>
+                    <div>Item E</div>
+                </selectable-items>
+            </div>
+        </article>
+        <article class="events">
+            <header>Events</header>
+            <div class="description">
+                <p>The <code>&lt;selectable-items&gt;</code> element dispatches a change event whenever a selection is made.</p>
+                <p>In the example below, the text content of each selected item is logged any time the change event is dispatched:</p>
+            </div>
+            <div class="example">
+                <selectable-items multi="true">
+                    <div>Item A</div>
+                    <div>Item B</div>
+                    <div>Item C</div>
+                    <div>Item D</div>
+                    <div>Item E</div>
+                </selectable-items>
+            </div>
+            <div class="log">
+                <header>
+                    <span class="title">Event Log</span>
+                </header>
+                <ul></ul>
+            </div>
+            <script type="module">
+                const eventsExample = document.querySelector('article.events');
+                const collection = eventsExample.querySelector('selectable-items');
+                const eventsLog = document.querySelector('article.events .log ul');
+                document.addEventListener('DOMContentLoaded', () =>
+                {
+                    collection.addEventListener('change', (event) =>
+                    {
+                        logResult(event.target.selected().map(item => item.textContent));
+                    })
+                });
+                function logResult(result)
+                {
+                    const entry = document.createElement('li');
+                    entry.textContent = JSON.stringify(result, null, 2);
+                    entry.classList.add('entry');
+                    eventsLog.append(entry);
+                }
+            </script>
+        </article>
+    </main>
+    <script type="module" src="../vanilla/selectable-items.js"></script>
+</body>
+</html>

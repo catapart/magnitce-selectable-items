@@ -1,0 +1,22 @@
+:host { user-select: none; }
+::slotted(*)
+{
+    user-select: none;
+    cursor: pointer;
+}
+::slotted(:hover)
+{
+    background-color: var(--background-color-hover, rgb(221, 221, 221));
+}
+::slotted(.selected)
+{
+    background-color: var(--background-color-selected, highlight);
+    color: var(--color-selected, highlighttext);
+}
+@media (prefers-color-scheme: dark) 
+{
+    ::slotted(:hover)
+    {
+        --background-color-hover: rgb(197, 197, 197);
+    }
+}
