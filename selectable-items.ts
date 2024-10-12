@@ -72,7 +72,7 @@ export class SelectableItemsElement extends HTMLElement
 
     selectItem(item: HTMLElement)
     {
-        if(item.parentNode != this) { console.info("Unable to select an item that is not a child of this element."); return; }
+        // if(item.parentNode != this) { console.info("Unable to select an item that is not a child of this element."); return; }
 
         // deselect items, if appropriate
         const allowMultipleAttribute = this.getAttribute('multiple') ?? this.getAttribute('multi');
