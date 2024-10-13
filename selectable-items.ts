@@ -78,7 +78,8 @@ export class SelectableItemsElement extends HTMLElement
         const allowMultipleAttribute = this.getAttribute('multiple') ?? this.getAttribute('multi');
         if(SelectableItemsElement._multipleModifierActive == false || allowMultipleAttribute == null)
         {
-            const currentlySelected = [...this.children].reduce((selected, currentItem, _index) => 
+            // default to item.parentElement in case the selectable-items children are provided with a slot.
+            const currentlySelected = [...(item.parentElement ?? this).children].reduce((selected, currentItem, _index) => 
             {
                 if(currentItem.classList.contains(SelectableItemsElement.selectedClassName))
                 {
