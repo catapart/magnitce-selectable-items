@@ -1,5 +1,11 @@
 # @magnit-ce/selectable-items
 
+## 0.0.4
+
+### Patch Changes
+
+- b20d682: fixed issue with slotted children not being de-selected
+
 ## 0.0.3
 
 ### Patch Changes
