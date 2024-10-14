@@ -65,7 +65,8 @@ export class SelectableItemsElement extends HTMLElement
                 children[i].addEventListener('click', (event) =>
                 {
                     this.selectItem(event.currentTarget as HTMLElement)
-                })
+                });
+                this.handledItems.add(children[i]);
             }
         });   
     }
@@ -81,7 +82,7 @@ export class SelectableItemsElement extends HTMLElement
             // default to item.parentElement in case the selectable-items children are provided with a slot.
             const currentlySelected = [...(item.parentElement ?? this).children].reduce((selected, currentItem, _index) => 
             {
-                if(currentItem.classList.contains(SelectableItemsElement.selectedClassName))
+                if(this.handledItems.has(currentItem) && currentItem.classList.contains(SelectableItemsElement.selectedClassName))
                 {
                     selected.push(currentItem);
                 }

@@ -47,18 +47,15 @@ var SelectableItemsElement = class _SelectableItemsElement extends HTMLElement {
         children[i].addEventListener("click", (event2) => {
           this.selectItem(event2.currentTarget);
         });
+        this.handledItems.add(children[i]);
       }
     });
   }
   selectItem(item) {
-    if (item.parentNode != this) {
-      console.info("Unable to select an item that is not a child of this element.");
-      return;
-    }
     const allowMultipleAttribute = this.getAttribute("multiple") ?? this.getAttribute("multi");
     if (_SelectableItemsElement._multipleModifierActive == false || allowMultipleAttribute == null) {
-      const currentlySelected = [...this.children].reduce((selected, currentItem, _index) => {
-        if (currentItem.classList.contains(_SelectableItemsElement.selectedClassName)) {
+      const currentlySelected = [...(item.parentElement ?? this).children].reduce((selected, currentItem, _index) => {
+        if (this.handledItems.has(currentItem) && currentItem.classList.contains(_SelectableItemsElement.selectedClassName)) {
           selected.push(currentItem);
         }
         return selected;
