@@ -1,5 +1,11 @@
 # @magnit-ce/selectable-items
 
+## 0.0.5
+
+### Patch Changes
+
+- 76a66f9: scoped deselect to only work on handled items
+
 ## 0.0.4
 
 ### Patch Changes
