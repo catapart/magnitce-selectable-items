@@ -1,5 +1,11 @@
 # @magnit-ce/selectable-items
 
+## 0.0.6
+
+### Patch Changes
+
+- 5bd3b20: removed double-change event when selecting slotted children
+
 ## 0.0.5
 
 ### Patch Changes
