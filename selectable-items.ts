@@ -51,7 +51,7 @@ export class SelectableItemsElement extends HTMLElement
             const children = (event.target as HTMLSlotElement).assignedElements();
             for(let i = 0; i < children.length; i++)
             {
-                if(this.handledItems.has(children[i]))
+                if(this.handledItems.has(children[i]) || children[i].tagName.toLowerCase() == 'slot')
                 {
                     continue;
                 }
