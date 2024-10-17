@@ -35,7 +35,7 @@ var SelectableItemsElement = class _SelectableItemsElement extends HTMLElement {
     this.shadowRoot.querySelector("slot").addEventListener("slotchange", (event) => {
       const children = event.target.assignedElements();
       for (let i = 0; i < children.length; i++) {
-        if (this.handledItems.has(children[i])) {
+        if (this.handledItems.has(children[i]) || children[i].tagName.toLowerCase() == "slot") {
           continue;
         }
         children[i].setAttribute("tabIndex", "0");
