@@ -37,7 +37,7 @@ export class SelectableItemsElement extends HTMLElement
 
     selected = <T = HTMLElement>() => [...this.querySelectorAll(`.${SelectableItemsElement.selectedClassName}`)] as T[];
 
-    handledItems: WeakSet<Element> = new WeakSet();
+    // handledItems: WeakSet<Element> = new WeakSet();
 
     constructor()
     {
@@ -46,27 +46,44 @@ export class SelectableItemsElement extends HTMLElement
         this.shadowRoot!.innerHTML = `<slot></slot>`;
         this.shadowRoot!.adoptedStyleSheets.push(COMPONENT_STYLESHEET);
 
+
+        this.addEventListener('click', (event: Event) =>
+        {
+            let item: HTMLElement|undefined;
+            const composedPath = event.composedPath();
+            for(let i = 0; i < composedPath.length; i++)
+            {
+                const element = composedPath[i] as HTMLElement;
+                if(element.parentElement == this)
+                {
+                    item = (element.tagName == 'SLOT')
+                    ? (element as HTMLSlotElement).assignedElements().find(slotChild => composedPath.indexOf(slotChild) > -1) as HTMLElement
+                    : element;
+                }
+            }
+            if(item == null) { return; }
+            this.selectItem(item);
+        });
+        this.addEventListener('keydown', (event) =>
+        {
+            if(SelectableItemsElement.selectKeys.indexOf((event as KeyboardEvent).code) > -1)
+            {
+                this.selectItem(event.target as HTMLElement);
+                event.preventDefault();
+            }
+        });
+
         this.shadowRoot!.querySelector('slot')!.addEventListener('slotchange', (event) =>
         {
             const children = (event.target as HTMLSlotElement).assignedElements();
             for(let i = 0; i < children.length; i++)
             {
-                if(this.handledItems.has(children[i]) || children[i].tagName.toLowerCase() == 'slot')
+                if(children[i].hasAttribute('tabIndex'))
                 {
                     continue;
                 }
                 children[i].setAttribute('tabIndex', '0');
-                children[i].addEventListener('keydown', (event: Event|KeyboardEvent) => {
-                    if(SelectableItemsElement.selectKeys.indexOf((event as KeyboardEvent).code) > -1)
-                    {
-                        this.selectItem(event.currentTarget as HTMLElement)
-                    }
-                })
-                children[i].addEventListener('click', (event) =>
-                {
-                    this.selectItem(event.currentTarget as HTMLElement)
-                });
-                this.handledItems.add(children[i]);
+                // this.handledItems.add(children[i]);
             }
         });   
     }
@@ -82,7 +99,7 @@ export class SelectableItemsElement extends HTMLElement
             // default to item.parentElement in case the selectable-items children are provided with a slot.
             const currentlySelected = [...(item.parentElement ?? this).children].reduce((selected, currentItem, _index) => 
             {
-                if(this.handledItems.has(currentItem) && currentItem.classList.contains(SelectableItemsElement.selectedClassName))
+                if(currentItem.classList.contains(SelectableItemsElement.selectedClassName))
                 {
                     selected.push(currentItem);
                 }

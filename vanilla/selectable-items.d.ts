@@ -6,7 +6,6 @@ declare class SelectableItemsElement extends HTMLElement {
     static selectKeys: string[];
     static selectedClassName: string;
     selected: <T = HTMLElement>() => T[];
-    handledItems: WeakSet<Element>;
     constructor();
     selectItem(item: HTMLElement): void;
 }
