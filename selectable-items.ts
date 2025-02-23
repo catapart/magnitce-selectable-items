@@ -46,52 +46,52 @@ export class SelectableItemsElement extends HTMLElement
         this.shadowRoot!.innerHTML = `<slot></slot>`;
         this.shadowRoot!.adoptedStyleSheets.push(COMPONENT_STYLESHEET);
 
-
-        this.addEventListener('click', (event: Event) =>
-        {
-            let item: HTMLElement|undefined;
-            const composedPath = event.composedPath();
-            for(let i = 0; i < composedPath.length; i++)
-            {
-                const element = composedPath[i] as HTMLElement;
-                if(element.parentElement == this)
-                {
-                    item = (element.tagName == 'SLOT')
-                    ? (element as HTMLSlotElement).assignedElements().find(slotChild => composedPath.indexOf(slotChild) > -1) as HTMLElement
-                    : element;
-                }
-            }
-            if(item == null) { return; }
-            this.selectItem(item);
-        });
-        this.addEventListener('keydown', (event) =>
+        this.addEventListener('keydown', (event: Event|KeyboardEvent) =>
         {
             if(SelectableItemsElement.selectKeys.indexOf((event as KeyboardEvent).code) > -1)
             {
-                this.selectItem(event.target as HTMLElement);
-                event.preventDefault();
+                const selectedChild = event.composedPath()
+                .find(item => item instanceof HTMLElement 
+                && item.parentElement == this) as HTMLElement;
+
+                // dispatch event
+                const defaultAllowed = this.dispatchEvent(new Event('change'));
+                if(defaultAllowed == false) { return; }
+                event.preventDefault(); // prevent key's defualt function
+                this.selectItem(selectedChild);
+
             }
         });
+        this.addEventListener('click', (event) =>
+        {
+            const selectedChild = event.composedPath()
+            .find(item => item instanceof HTMLElement 
+            && item.parentElement == this) as HTMLElement;
+
+            if(selectedChild == null) { return; }
+
+            // dispatch event
+            const defaultAllowed = this.dispatchEvent(new Event('change'));
+            if(defaultAllowed == false) { return; }
+
+            this.selectItem(selectedChild);
+        })
 
         this.shadowRoot!.querySelector('slot')!.addEventListener('slotchange', (event) =>
         {
             const children = (event.target as HTMLSlotElement).assignedElements();
             for(let i = 0; i < children.length; i++)
             {
-                if(children[i].hasAttribute('tabIndex'))
+                if(children[i].hasAttribute('tabIndex') == false)
                 {
-                    continue;
+                    children[i].setAttribute('tabIndex', '0');
                 }
-                children[i].setAttribute('tabIndex', '0');
-                // this.handledItems.add(children[i]);
             }
         });   
     }
 
     selectItem(item: HTMLElement)
     {
-        // if(item.parentNode != this) { console.info("Unable to select an item that is not a child of this element."); return; }
-
         // deselect items, if appropriate
         const allowMultipleAttribute = this.getAttribute('multiple') ?? this.getAttribute('multi');
         if(SelectableItemsElement._multipleModifierActive == false || allowMultipleAttribute == null)
@@ -99,20 +99,28 @@ export class SelectableItemsElement extends HTMLElement
             // default to item.parentElement in case the selectable-items children are provided with a slot.
             const currentlySelected = [...(item.parentElement ?? this).children].reduce((selected, currentItem, _index) => 
             {
-                if(currentItem.classList.contains(SelectableItemsElement.selectedClassName))
+                if(this.contains(currentItem) && currentItem.hasAttribute('aria-selected'))
                 {
                     selected.push(currentItem);
                 }
                 return selected;
             }, new Array<Element>());
-            currentlySelected.forEach(currentItem => currentItem.classList.remove(SelectableItemsElement.selectedClassName));
+            currentlySelected.forEach(currentItem => this.#deselectItem(currentItem));
         }
 
         // select item
-        item.classList.add(SelectableItemsElement.selectedClassName);
+        this.#selectItem(item);
+    }
 
-        // dispatch event
-        this.dispatchEvent(new Event('change'));
+    #selectItem(item: Element)
+    {
+        item.classList.add(this.getAttribute('selected-class-name') ?? SelectableItemsElement.selectedClassName);
+        item.setAttribute('aria-selected', 'option');
+    }
+    #deselectItem(item: Element)
+    {
+        item.classList.remove(this.getAttribute('selected-class-name') ?? SelectableItemsElement.selectedClassName)
+        item.removeAttribute('aria-selected');
     }
 }
 

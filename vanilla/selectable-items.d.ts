@@ -1,4 +1,5 @@
 declare class SelectableItemsElement extends HTMLElement {
+    #private;
     static observedAttributes: never[];
     static _multipleModifierActive: boolean;
     static multipleModifierKeys: string[];

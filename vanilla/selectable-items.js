@@ -1,5 +1,5 @@
 // selectable-items.css?raw
-var selectable_items_default = ":host { user-select: none; }\n::slotted(*)\n{\n    user-select: none;\n    cursor: pointer;\n}\n::slotted(:hover)\n{\n    background-color: var(--background-color-hover, rgb(221, 221, 221));\n}\n::slotted(.selected)\n{\n    background-color: var(--background-color-selected, highlight);\n    color: var(--color-selected, highlighttext);\n}\n@media (prefers-color-scheme: dark) \n{\n    ::slotted(:hover)\n    {\n        --background-color-hover: rgb(197, 197, 197);\n    }\n}";
+var selectable_items_default = ":host { user-select: none; }\r\n::slotted(*)\r\n{\r\n    user-select: none;\r\n    cursor: pointer;\r\n}\r\n::slotted(:hover)\r\n{\r\n    background-color: var(--background-color-hover, rgb(221, 221, 221));\r\n}\r\n::slotted([aria-selected])\r\n{\r\n    background-color: var(--background-color-selected, highlight);\r\n    color: var(--color-selected, highlighttext);\r\n}\r\n@media (prefers-color-scheme: dark) \r\n{\r\n    ::slotted(:hover)\r\n    {\r\n        --background-color-hover: rgb(197, 197, 197);\r\n    }\r\n}";
 
 // selectable-items.ts
 var COMPONENT_STYLESHEET = new CSSStyleSheet();
@@ -32,33 +32,34 @@ var SelectableItemsElement = class _SelectableItemsElement extends HTMLElement {
     this.attachShadow({ mode: "open" });
     this.shadowRoot.innerHTML = `<slot></slot>`;
     this.shadowRoot.adoptedStyleSheets.push(COMPONENT_STYLESHEET);
-    this.addEventListener("click", (event) => {
-      let item;
-      const composedPath = event.composedPath();
-      for (let i = 0; i < composedPath.length; i++) {
-        const element = composedPath[i];
-        if (element.parentElement == this) {
-          item = element.tagName == "SLOT" ? element.assignedElements().find((slotChild) => composedPath.indexOf(slotChild) > -1) : element;
-        }
-      }
-      if (item == null) {
-        return;
-      }
-      this.selectItem(item);
-    });
     this.addEventListener("keydown", (event) => {
       if (_SelectableItemsElement.selectKeys.indexOf(event.code) > -1) {
-        this.selectItem(event.target);
+        const selectedChild = event.composedPath().find((item) => item instanceof HTMLElement && item.parentElement == this);
+        const defaultAllowed = this.dispatchEvent(new Event("change"));
+        if (defaultAllowed == false) {
+          return;
+        }
         event.preventDefault();
+        this.selectItem(selectedChild);
       }
+    });
+    this.addEventListener("click", (event) => {
+      const selectedChild = event.composedPath().find((item) => item instanceof HTMLElement && item.parentElement == this);
+      if (selectedChild == null) {
+        return;
+      }
+      const defaultAllowed = this.dispatchEvent(new Event("change"));
+      if (defaultAllowed == false) {
+        return;
+      }
+      this.selectItem(selectedChild);
     });
     this.shadowRoot.querySelector("slot").addEventListener("slotchange", (event) => {
       const children = event.target.assignedElements();
       for (let i = 0; i < children.length; i++) {
-        if (children[i].hasAttribute("tabIndex")) {
-          continue;
+        if (children[i].hasAttribute("tabIndex") == false) {
+          children[i].setAttribute("tabIndex", "0");
         }
-        children[i].setAttribute("tabIndex", "0");
       }
     });
   }
@@ -66,15 +67,22 @@ var SelectableItemsElement = class _SelectableItemsElement extends HTMLElement {
     const allowMultipleAttribute = this.getAttribute("multiple") ?? this.getAttribute("multi");
     if (_SelectableItemsElement._multipleModifierActive == false || allowMultipleAttribute == null) {
       const currentlySelected = [...(item.parentElement ?? this).children].reduce((selected, currentItem, _index) => {
-        if (currentItem.classList.contains(_SelectableItemsElement.selectedClassName)) {
+        if (this.contains(currentItem) && currentItem.hasAttribute("aria-selected")) {
           selected.push(currentItem);
         }
         return selected;
       }, new Array());
-      currentlySelected.forEach((currentItem) => currentItem.classList.remove(_SelectableItemsElement.selectedClassName));
+      currentlySelected.forEach((currentItem) => this.#deselectItem(currentItem));
     }
-    item.classList.add(_SelectableItemsElement.selectedClassName);
-    this.dispatchEvent(new Event("change"));
+    this.#selectItem(item);
+  }
+  #selectItem(item) {
+    item.classList.add(this.getAttribute("selected-class-name") ?? _SelectableItemsElement.selectedClassName);
+    item.setAttribute("aria-selected", "option");
+  }
+  #deselectItem(item) {
+    item.classList.remove(this.getAttribute("selected-class-name") ?? _SelectableItemsElement.selectedClassName);
+    item.removeAttribute("aria-selected");
   }
 };
 if (customElements.get(COMPONENT_TAG_NAME) == null) {
