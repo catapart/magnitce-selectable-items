@@ -1,5 +1,11 @@
 # @magnit-ce/selectable-items
 
+## 0.0.7
+
+### Patch Changes
+
+- 8106161: refactored handlers to target the list instead of the individual elements
+
 ## 0.0.6
 
 ### Patch Changes
