@@ -1,5 +1,15 @@
 # @magnit-ce/selectable-items
 
+## 0.1.0
+
+### Minor Changes
+
+- 820d959: refactored selection to use aria-selected attribute
+
+### Patch Changes
+
+- b0aa153: added key function prevention to default select behavior
+
 ## 0.0.7
 
 ### Patch Changes
