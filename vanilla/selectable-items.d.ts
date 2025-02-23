@@ -1,4 +1,5 @@
 declare class SelectableItemsElement extends HTMLElement {
+    #private;
     static observedAttributes: never[];
     static _multipleModifierActive: boolean;
     static multipleModifierKeys: string[];
@@ -6,7 +7,6 @@ declare class SelectableItemsElement extends HTMLElement {
     static selectKeys: string[];
     static selectedClassName: string;
     selected: <T = HTMLElement>() => T[];
-    handledItems: WeakSet<Element>;
     constructor();
     selectItem(item: HTMLElement): void;
 }

@@ -8,7 +8,7 @@
 {
     background-color: var(--background-color-hover, rgb(221, 221, 221));
 }
-::slotted(.selected)
+::slotted([aria-selected])
 {
     background-color: var(--background-color-selected, highlight);
     color: var(--color-selected, highlighttext);

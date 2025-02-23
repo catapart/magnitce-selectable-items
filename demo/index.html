@@ -3,24 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Selectable Items Demo</title>
+    <title>&lt;selectable-items&gt; Demo</title>
     <link rel="stylesheet" href="./demo-page.css">
 </head>
 <body>
-    <main>
-        <h1>Overview</h1>
-        <div class="overview">
+    <main class="centered-single-column">
+        <header class="full-width">
+            <div class="content centered-single-column">
+                <h1>The <code>selectable-items</code> element</h1>
+            </div>
+        </header>
+        <article class="overview">
+            <h2>Overview</h2>
             <p>The <code>&lt;selectable-items&gt;</code> element provides selection functionality for any arbitrary set of elements.</p>
             <p>Any element that is a child of the <code>&lt;selectable-items&gt;</code> element will be "selected" whenever clicked (or toggled with enter/select keys), and given a tabIndex attribute for keyboard navigation.</p>
-        </div>
-        <h1>Examples</h1>
+        </article>
         <article class="basic">
-            <header>Basic Example</header>
-                <p>The <code>&lt;selectable-items&gt;</code> element </p>
+            <h2>Basic Example</h2>
+            <div class="description">
+                <p>The <code>&lt;selectable-items&gt;</code> element provides select functionality for any of its child elements.</p>
+                <p>When a child element has been selected, it will have it's <code>aria-selected</code> attribute set to <code>option</code>, and the class <code>selected</code> will be applied.</p>
+                <p>Both of these effects can be prevented by using the <code>preventDefault</code> function on the <code>&lt;selectable-items&gt;</code> element's <a href="#events"><code>change</code> event</a>.</p>
             </div>
-            <div class="example">
-                <div>
-                    <header>Inline</header>
+            <section class="inline">
+                <h3>Inline</h3>
+                <div class="description">
+                    <p>Children of the <code>&lt;selectable-items&gt;</code> element will be rendered inline, if they are inline elements like <code>&lt;span&gt;</code>.</p>
+                </div>
+                <div class="example">
                     <selectable-items>
                         <span>A</span>
                         <span>B</span>
@@ -29,8 +39,13 @@
                         <span>E</span>
                     </selectable-items>
                 </div>
-                <div>
-                    <header>Block</header>
+            </section>
+            <section class="block">
+                <h3>Block</h3>
+                <div class="description">
+                    <p>Children of the <code>&lt;selectable-items&gt;</code> element can also be block elements like <code>&lt;div&gt;</code>.</p>
+                </div>
+                <div class="example">
                     <selectable-items>
                         <div>A</div>
                         <div>B</div>
@@ -39,10 +54,10 @@
                         <div>E</div>
                     </selectable-items>
                 </div>
-            </div>
+            </section>
         </article>
         <article class="multi">
-            <header>Multi-select</header>
+            <h2>Multi-select</h2>
             <div class="description">
                 <p>The <code>&lt;selectable-items&gt;</code> element can allow multiple selections by setting the element's <code>multi</code> attribute to <code>true</code>.</p>
                 <p>With multiple select active, the user can hold the <key>Shift</key> or <key>Control</key> keys to select as many as all of the items.</p>
@@ -58,9 +73,9 @@
             </div>
         </article>
         <article class="events">
-            <header>Events</header>
+            <h2 id="events">Events</h2>
             <div class="description">
-                <p>The <code>&lt;selectable-items&gt;</code> element dispatches a change event whenever a selection is made.</p>
+                <p>The <code>&lt;selectable-items&gt;</code> element dispatches a <code>change</code> event whenever a selection is made.</p>
                 <p>In the example below, the text content of each selected item is logged any time the change event is dispatched:</p>
             </div>
             <div class="example">

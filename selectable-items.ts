@@ -37,7 +37,7 @@ export class SelectableItemsElement extends HTMLElement
 
     selected = <T = HTMLElement>() => [...this.querySelectorAll(`.${SelectableItemsElement.selectedClassName}`)] as T[];
 
-    handledItems: WeakSet<Element> = new WeakSet();
+    // handledItems: WeakSet<Element> = new WeakSet();
 
     constructor()
     {
@@ -46,34 +46,46 @@ export class SelectableItemsElement extends HTMLElement
         this.shadowRoot!.innerHTML = `<slot></slot>`;
         this.shadowRoot!.adoptedStyleSheets.push(COMPONENT_STYLESHEET);
 
+        this.addEventListener('keydown', (event: Event|KeyboardEvent) =>
+        {
+            if(SelectableItemsElement.selectKeys.indexOf((event as KeyboardEvent).code) > -1)
+            {
+                const selectedChild = event.composedPath()
+                .find(item => item instanceof HTMLElement 
+                && item.parentElement == this) as HTMLElement;
+
+                this.selectItem(selectedChild);
+            }
+        });
+        this.addEventListener('click', (event) =>
+        {
+            const selectedChild = event.composedPath()
+            .find(item => item instanceof HTMLElement 
+            && item.parentElement == this) as HTMLElement;
+
+            if(selectedChild == null) { return; }
+            this.selectItem(selectedChild);
+        })
+
         this.shadowRoot!.querySelector('slot')!.addEventListener('slotchange', (event) =>
         {
             const children = (event.target as HTMLSlotElement).assignedElements();
             for(let i = 0; i < children.length; i++)
             {
-                if(this.handledItems.has(children[i]) || children[i].tagName.toLowerCase() == 'slot')
+                if(children[i].hasAttribute('tabIndex') == false)
                 {
-                    continue;
+                    children[i].setAttribute('tabIndex', '0');
                 }
-                children[i].setAttribute('tabIndex', '0');
-                children[i].addEventListener('keydown', (event: Event|KeyboardEvent) => {
-                    if(SelectableItemsElement.selectKeys.indexOf((event as KeyboardEvent).code) > -1)
-                    {
-                        this.selectItem(event.currentTarget as HTMLElement)
-                    }
-                })
-                children[i].addEventListener('click', (event) =>
-                {
-                    this.selectItem(event.currentTarget as HTMLElement)
-                });
-                this.handledItems.add(children[i]);
             }
         });   
     }
 
     selectItem(item: HTMLElement)
     {
-        // if(item.parentNode != this) { console.info("Unable to select an item that is not a child of this element."); return; }
+
+        // dispatch event
+        const defaultAllowed = this.dispatchEvent(new Event('change'));
+        if(defaultAllowed == false) { return; }
 
         // deselect items, if appropriate
         const allowMultipleAttribute = this.getAttribute('multiple') ?? this.getAttribute('multi');
@@ -82,20 +94,28 @@ export class SelectableItemsElement extends HTMLElement
             // default to item.parentElement in case the selectable-items children are provided with a slot.
             const currentlySelected = [...(item.parentElement ?? this).children].reduce((selected, currentItem, _index) => 
             {
-                if(this.handledItems.has(currentItem) && currentItem.classList.contains(SelectableItemsElement.selectedClassName))
+                if(this.contains(currentItem) && currentItem.hasAttribute('aria-selected'))
                 {
                     selected.push(currentItem);
                 }
                 return selected;
             }, new Array<Element>());
-            currentlySelected.forEach(currentItem => currentItem.classList.remove(SelectableItemsElement.selectedClassName));
+            currentlySelected.forEach(currentItem => this.#deselectItem(currentItem));
         }
 
         // select item
-        item.classList.add(SelectableItemsElement.selectedClassName);
+        this.#selectItem(item);
+    }
 
-        // dispatch event
-        this.dispatchEvent(new Event('change'));
+    #selectItem(item: Element)
+    {
+        item.classList.add(this.getAttribute('selected-class-name') ?? SelectableItemsElement.selectedClassName);
+        item.setAttribute('aria-selected', 'option');
+    }
+    #deselectItem(item: Element)
+    {
+        item.classList.remove(this.getAttribute('selected-class-name') ?? SelectableItemsElement.selectedClassName)
+        item.removeAttribute('aria-selected');
     }
 }
 

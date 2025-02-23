@@ -82,5 +82,7 @@ The `<selectable-items>` element exposes the following `slot`s:
 ## Styling
 The `<selectable-items>` element can be styled with CSS, normally. The `<selectable-items>` element does not utilize the shadowDOM for layout, so all styling can be done with standard CSS selectors. For its children, they can be styled with standard CSS selectors, as well.
 
+Selected children are have the `selected` class applied, and their `aria-selected` attribute set to `option`. These defaults can be prevented by using the `preventDefault` function on the `<selectable-items>`'s `change` event. The specific class name applied can be changed by using the `selectedClassName` property of the element.
+
 ## License
 This library is in the public domain. You do not need permission, nor do you need to provide attribution, in order to use, modify, reproduce, publish, or sell it or any works using it or derived from it.
