@@ -101,7 +101,11 @@
                 {
                     collection.addEventListener('change', (event) =>
                     {
-                        logResult(event.target.selected().map(item => item.textContent));
+                        // use event properties because the change event
+                        // fires before the selection occurs, in case
+                        // preventDefault is called on the change.
+                        const { selected } = event.detail;
+                        logResult(selected.map(item => item.textContent));
                     })
                 });
                 function logResult(result)

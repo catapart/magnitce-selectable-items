@@ -25,8 +25,7 @@ var SelectableItemsElement = class _SelectableItemsElement extends HTMLElement {
   static multipleModifierActive = false;
   static selectKeys = ["Enter", "Space"];
   static selectedClassName = "selected";
-  selected = () => [...this.querySelectorAll(`.${_SelectableItemsElement.selectedClassName}`)];
-  // handledItems: WeakSet<Element> = new WeakSet();
+  selected = () => [...this.querySelectorAll(`[aria-selected]`)];
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
@@ -35,7 +34,7 @@ var SelectableItemsElement = class _SelectableItemsElement extends HTMLElement {
     this.addEventListener("keydown", (event) => {
       if (_SelectableItemsElement.selectKeys.indexOf(event.code) > -1) {
         const selectedChild = event.composedPath().find((item) => item instanceof HTMLElement && item.parentElement == this);
-        const defaultAllowed = this.dispatchEvent(new Event("change"));
+        const defaultAllowed = this.#dispatchChange(selectedChild);
         if (defaultAllowed == false) {
           return;
         }
@@ -48,7 +47,7 @@ var SelectableItemsElement = class _SelectableItemsElement extends HTMLElement {
       if (selectedChild == null) {
         return;
       }
-      const defaultAllowed = this.dispatchEvent(new Event("change"));
+      const defaultAllowed = this.#dispatchChange(selectedChild);
       if (defaultAllowed == false) {
         return;
       }
@@ -75,6 +74,7 @@ var SelectableItemsElement = class _SelectableItemsElement extends HTMLElement {
       currentlySelected.forEach((currentItem) => this.#deselectItem(currentItem));
     }
     this.#selectItem(item);
+    return this.selected();
   }
   #selectItem(item) {
     item.classList.add(this.getAttribute("selected-class-name") ?? _SelectableItemsElement.selectedClassName);
@@ -83,6 +83,22 @@ var SelectableItemsElement = class _SelectableItemsElement extends HTMLElement {
   #deselectItem(item) {
     item.classList.remove(this.getAttribute("selected-class-name") ?? _SelectableItemsElement.selectedClassName);
     item.removeAttribute("aria-selected");
+  }
+  #dispatchChange(selectedItem) {
+    const selected = /* @__PURE__ */ new Set([selectedItem]);
+    const allowMultipleAttribute = this.hasAttribute("multiple") || this.hasAttribute("multi");
+    if (_SelectableItemsElement._multipleModifierActive == true && allowMultipleAttribute == true) {
+      for (const element of this.selected()) {
+        selected.add(element);
+      }
+    }
+    const defaultAllowed = this.dispatchEvent(new CustomEvent("change", {
+      bubbles: true,
+      composed: true,
+      cancelable: true,
+      detail: { selected: Array.from(selected) }
+    }));
+    return defaultAllowed;
   }
 };
 if (customElements.get(COMPONENT_TAG_NAME) == null) {

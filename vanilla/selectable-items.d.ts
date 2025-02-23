@@ -8,7 +8,7 @@ declare class SelectableItemsElement extends HTMLElement {
     static selectedClassName: string;
     selected: <T = HTMLElement>() => T[];
     constructor();
-    selectItem(item: HTMLElement): void;
+    selectItem(item: HTMLElement): HTMLElement[];
 }
 
 export { SelectableItemsElement };

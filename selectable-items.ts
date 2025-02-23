@@ -35,9 +35,7 @@ export class SelectableItemsElement extends HTMLElement
 
     static selectedClassName = 'selected';
 
-    selected = <T = HTMLElement>() => [...this.querySelectorAll(`.${SelectableItemsElement.selectedClassName}`)] as T[];
-
-    // handledItems: WeakSet<Element> = new WeakSet();
+    selected = <T = HTMLElement>() => [...this.querySelectorAll(`[aria-selected]`)] as T[];
 
     constructor()
     {
@@ -54,10 +52,9 @@ export class SelectableItemsElement extends HTMLElement
                 .find(item => item instanceof HTMLElement 
                 && item.parentElement == this) as HTMLElement;
 
-                // dispatch event
-                const defaultAllowed = this.dispatchEvent(new Event('change'));
+                const defaultAllowed = this.#dispatchChange(selectedChild);
                 if(defaultAllowed == false) { return; }
-                event.preventDefault(); // prevent key's defualt function
+                event.preventDefault(); // prevent key's default function
                 this.selectItem(selectedChild);
 
             }
@@ -70,8 +67,7 @@ export class SelectableItemsElement extends HTMLElement
 
             if(selectedChild == null) { return; }
 
-            // dispatch event
-            const defaultAllowed = this.dispatchEvent(new Event('change'));
+            const defaultAllowed = this.#dispatchChange(selectedChild);
             if(defaultAllowed == false) { return; }
 
             this.selectItem(selectedChild);
@@ -110,6 +106,8 @@ export class SelectableItemsElement extends HTMLElement
 
         // select item
         this.#selectItem(item);
+
+        return this.selected();
     }
 
     #selectItem(item: Element)
@@ -121,6 +119,27 @@ export class SelectableItemsElement extends HTMLElement
     {
         item.classList.remove(this.getAttribute('selected-class-name') ?? SelectableItemsElement.selectedClassName)
         item.removeAttribute('aria-selected');
+    }
+
+    #dispatchChange(selectedItem: Element)
+    {
+        const selected = new Set([selectedItem]);
+        const allowMultipleAttribute = this.hasAttribute('multiple') || this.hasAttribute('multi');
+        if(SelectableItemsElement._multipleModifierActive == true && allowMultipleAttribute == true)
+        {
+            for(const element of this.selected())
+            {
+                selected.add(element);
+            }
+        }
+        // dispatch event
+        const defaultAllowed = this.dispatchEvent(new CustomEvent('change', { 
+            bubbles: true,
+            composed: true,
+            cancelable: true,
+            detail: { selected: Array.from(selected) }
+        }));
+        return defaultAllowed;
     }
 }
 
