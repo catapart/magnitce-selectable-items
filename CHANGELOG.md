@@ -1,5 +1,11 @@
 # @magnit-ce/selectable-items
 
+## 0.1.1
+
+### Patch Changes
+
+- 6bf9dee: refactored change event detail to include selection content
+
 ## 0.1.0
 
 ### Minor Changes
