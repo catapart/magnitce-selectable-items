@@ -1,5 +1,11 @@
 # @magnit-ce/selectable-items
 
+## 0.1.2
+
+### Patch Changes
+
+- 03d49b1: refactored to allow for shadow-dom nesting
+
 ## 0.1.1
 
 ### Patch Changes
