@@ -54,7 +54,12 @@ export class SelectableItemsElement extends HTMLElement
                 .find(item => item instanceof HTMLElement 
                 && item.parentElement == this) as HTMLElement;
 
+                // dispatch event
+                const defaultAllowed = this.dispatchEvent(new Event('change'));
+                if(defaultAllowed == false) { return; }
+                event.preventDefault(); // prevent key's defualt function
                 this.selectItem(selectedChild);
+
             }
         });
         this.addEventListener('click', (event) =>
@@ -64,6 +69,11 @@ export class SelectableItemsElement extends HTMLElement
             && item.parentElement == this) as HTMLElement;
 
             if(selectedChild == null) { return; }
+
+            // dispatch event
+            const defaultAllowed = this.dispatchEvent(new Event('change'));
+            if(defaultAllowed == false) { return; }
+
             this.selectItem(selectedChild);
         })
 
@@ -82,11 +92,6 @@ export class SelectableItemsElement extends HTMLElement
 
     selectItem(item: HTMLElement)
     {
-
-        // dispatch event
-        const defaultAllowed = this.dispatchEvent(new Event('change'));
-        if(defaultAllowed == false) { return; }
-
         // deselect items, if appropriate
         const allowMultipleAttribute = this.getAttribute('multiple') ?? this.getAttribute('multi');
         if(SelectableItemsElement._multipleModifierActive == false || allowMultipleAttribute == null)

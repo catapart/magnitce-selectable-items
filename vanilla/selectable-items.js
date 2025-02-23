@@ -35,12 +35,21 @@ var SelectableItemsElement = class _SelectableItemsElement extends HTMLElement {
     this.addEventListener("keydown", (event) => {
       if (_SelectableItemsElement.selectKeys.indexOf(event.code) > -1) {
         const selectedChild = event.composedPath().find((item) => item instanceof HTMLElement && item.parentElement == this);
+        const defaultAllowed = this.dispatchEvent(new Event("change"));
+        if (defaultAllowed == false) {
+          return;
+        }
+        event.preventDefault();
         this.selectItem(selectedChild);
       }
     });
     this.addEventListener("click", (event) => {
       const selectedChild = event.composedPath().find((item) => item instanceof HTMLElement && item.parentElement == this);
       if (selectedChild == null) {
+        return;
+      }
+      const defaultAllowed = this.dispatchEvent(new Event("change"));
+      if (defaultAllowed == false) {
         return;
       }
       this.selectItem(selectedChild);
@@ -55,10 +64,6 @@ var SelectableItemsElement = class _SelectableItemsElement extends HTMLElement {
     });
   }
   selectItem(item) {
-    const defaultAllowed = this.dispatchEvent(new Event("change"));
-    if (defaultAllowed == false) {
-      return;
-    }
     const allowMultipleAttribute = this.getAttribute("multiple") ?? this.getAttribute("multi");
     if (_SelectableItemsElement._multipleModifierActive == false || allowMultipleAttribute == null) {
       const currentlySelected = [...(item.parentElement ?? this).children].reduce((selected, currentItem, _index) => {
