@@ -117,7 +117,53 @@
                 }
             </script>
         </article>
+        <article class="nested">
+            <h2">Nested <code>&lt;slot&gt;</code></h2>
+            <div class="description">
+                <p>The <code>&lt;selectable-items&gt;</code> element can select items that are provided by a parent element using a nested <code>&lt;slot&gt;</code> element.</p>
+                <p>In this example, the <code>&lt;slot&gt;</code> element passes its slotted items through to a <code>&lt;selectable-items&gt;</code> element in its shadow dom:</p>
+            </div>
+            <div class="example">
+                <shadow-wrapper>
+                    <div>Item A</div>
+                    <div>Item B</div>
+                    <div>Item C</div>
+                    <div>Item D</div>
+                    <div>Item E</div>
+                </shadow-wrapper>
+            </div>
+            <div class="log">
+                <header>
+                    <span class="title">Event Log</span>
+                </header>
+                <ul></ul>
+            </div>
+            <script type="module">
+                const nestedExample = document.querySelector('article.nested');
+                const nestedCollection = nestedExample.querySelector('shadow-wrapper');
+                const nestedLog = document.querySelector('article.nested .log ul');
+                document.addEventListener('DOMContentLoaded', () =>
+                {
+                    nestedCollection.addEventListener('change', (event) =>
+                    {
+                        // use event properties because the change event
+                        // fires before the selection occurs, in case
+                        // preventDefault is called on the change.
+                        const { selected } = event.detail;
+                        logResult(selected.map(item => item.textContent));
+                    })
+                });
+                function logResult(result)
+                {
+                    const entry = document.createElement('li');
+                    entry.textContent = JSON.stringify(result, null, 2);
+                    entry.classList.add('entry');
+                    nestedLog.append(entry);
+                }
+            </script>
+        </article>
     </main>
     <script type="module" src="../vanilla/selectable-items.js"></script>
+    <script type="module" src="./shadow-wrapper.js"></script>
 </body>
 </html>

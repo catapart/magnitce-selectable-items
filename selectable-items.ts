@@ -19,6 +19,29 @@ document.addEventListener('keyup', (event) =>
     }
 });
 
+function getSelectableItem(event: Event, reference: SelectableItemsElement)
+{
+    const pathItems = event.composedPath();
+    let selectableItem = undefined;
+    
+    // find topmost item that is not a slot and
+    // is not the selectable-items list
+    for(let i = 0; i < pathItems.length; i++)
+    {
+        let pathItem = pathItems[i];
+        // no need to check outside of parent list
+        if(pathItem == reference) { break; }
+
+        if(pathItem instanceof HTMLElement
+        && (pathItem instanceof HTMLSlotElement) == false)
+        {
+            selectableItem = pathItem;
+        }
+
+    }
+    return selectableItem;
+}
+
 const COMPONENT_TAG_NAME = 'selectable-items';
 export class SelectableItemsElement extends HTMLElement
 {
@@ -35,8 +58,21 @@ export class SelectableItemsElement extends HTMLElement
 
     static selectedClassName = 'selected';
 
-    selected = <T = HTMLElement>() => [...this.querySelectorAll(`[aria-selected]`)] as T[];
+    selected = <T = HTMLElement>() => {
+        let slot = this.querySelector('slot');
+        let target: HTMLElement = this;
+        while(slot != null)
+        {
+            target = slot;
+            slot = slot.querySelector('slot');
+        }
 
+        const targetChildren = (target instanceof HTMLSlotElement)
+        ? target.assignedElements()
+        : [...target.children];
+        
+        return targetChildren.filter(item => item instanceof HTMLElement && item.hasAttribute('aria-selected')) as T[];
+    }
     constructor()
     {
         super();
@@ -48,9 +84,8 @@ export class SelectableItemsElement extends HTMLElement
         {
             if(SelectableItemsElement.selectKeys.indexOf((event as KeyboardEvent).code) > -1)
             {
-                const selectedChild = event.composedPath()
-                .find(item => item instanceof HTMLElement 
-                && item.parentElement == this) as HTMLElement;
+                const selectedChild = getSelectableItem(event, this);
+                if(selectedChild == undefined) { return; }
 
                 const defaultAllowed = this.#dispatchChange(selectedChild);
                 if(defaultAllowed == false) { return; }
@@ -61,10 +96,7 @@ export class SelectableItemsElement extends HTMLElement
         });
         this.addEventListener('click', (event) =>
         {
-            const selectedChild = event.composedPath()
-            .find(item => item instanceof HTMLElement 
-            && item.parentElement == this) as HTMLElement;
-
+            const selectedChild = getSelectableItem(event, this);
             if(selectedChild == null) { return; }
 
             const defaultAllowed = this.#dispatchChange(selectedChild);
@@ -95,7 +127,7 @@ export class SelectableItemsElement extends HTMLElement
             // default to item.parentElement in case the selectable-items children are provided with a slot.
             const currentlySelected = [...(item.parentElement ?? this).children].reduce((selected, currentItem, _index) => 
             {
-                if(this.contains(currentItem) && currentItem.hasAttribute('aria-selected'))
+                if(currentItem.hasAttribute('aria-selected'))
                 {
                     selected.push(currentItem);
                 }
@@ -127,6 +159,8 @@ export class SelectableItemsElement extends HTMLElement
         const allowMultipleAttribute = this.hasAttribute('multiple') || this.hasAttribute('multi');
         if(SelectableItemsElement._multipleModifierActive == true && allowMultipleAttribute == true)
         {
+            const allSelected = this.selected();
+            console.log(allSelected);
             for(const element of this.selected())
             {
                 selected.add(element);

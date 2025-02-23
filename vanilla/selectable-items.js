@@ -15,6 +15,20 @@ document.addEventListener("keyup", (event) => {
     SelectableItemsElement._multipleModifierActive = SelectableItemsElement.multipleModifierActive;
   }
 });
+function getSelectableItem(event, reference) {
+  const pathItems = event.composedPath();
+  let selectableItem = void 0;
+  for (let i = 0; i < pathItems.length; i++) {
+    let pathItem = pathItems[i];
+    if (pathItem == reference) {
+      break;
+    }
+    if (pathItem instanceof HTMLElement && pathItem instanceof HTMLSlotElement == false) {
+      selectableItem = pathItem;
+    }
+  }
+  return selectableItem;
+}
 var COMPONENT_TAG_NAME = "selectable-items";
 var SelectableItemsElement = class _SelectableItemsElement extends HTMLElement {
   static observedAttributes = [];
@@ -25,7 +39,16 @@ var SelectableItemsElement = class _SelectableItemsElement extends HTMLElement {
   static multipleModifierActive = false;
   static selectKeys = ["Enter", "Space"];
   static selectedClassName = "selected";
-  selected = () => [...this.querySelectorAll(`[aria-selected]`)];
+  selected = () => {
+    let slot = this.querySelector("slot");
+    let target = this;
+    while (slot != null) {
+      target = slot;
+      slot = slot.querySelector("slot");
+    }
+    const targetChildren = target instanceof HTMLSlotElement ? target.assignedElements() : [...target.children];
+    return targetChildren.filter((item) => item instanceof HTMLElement && item.hasAttribute("aria-selected"));
+  };
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
@@ -33,7 +56,10 @@ var SelectableItemsElement = class _SelectableItemsElement extends HTMLElement {
     this.shadowRoot.adoptedStyleSheets.push(COMPONENT_STYLESHEET);
     this.addEventListener("keydown", (event) => {
       if (_SelectableItemsElement.selectKeys.indexOf(event.code) > -1) {
-        const selectedChild = event.composedPath().find((item) => item instanceof HTMLElement && item.parentElement == this);
+        const selectedChild = getSelectableItem(event, this);
+        if (selectedChild == void 0) {
+          return;
+        }
         const defaultAllowed = this.#dispatchChange(selectedChild);
         if (defaultAllowed == false) {
           return;
@@ -43,7 +69,7 @@ var SelectableItemsElement = class _SelectableItemsElement extends HTMLElement {
       }
     });
     this.addEventListener("click", (event) => {
-      const selectedChild = event.composedPath().find((item) => item instanceof HTMLElement && item.parentElement == this);
+      const selectedChild = getSelectableItem(event, this);
       if (selectedChild == null) {
         return;
       }
@@ -66,7 +92,7 @@ var SelectableItemsElement = class _SelectableItemsElement extends HTMLElement {
     const allowMultipleAttribute = this.getAttribute("multiple") ?? this.getAttribute("multi");
     if (_SelectableItemsElement._multipleModifierActive == false || allowMultipleAttribute == null) {
       const currentlySelected = [...(item.parentElement ?? this).children].reduce((selected, currentItem, _index) => {
-        if (this.contains(currentItem) && currentItem.hasAttribute("aria-selected")) {
+        if (currentItem.hasAttribute("aria-selected")) {
           selected.push(currentItem);
         }
         return selected;
@@ -88,6 +114,8 @@ var SelectableItemsElement = class _SelectableItemsElement extends HTMLElement {
     const selected = /* @__PURE__ */ new Set([selectedItem]);
     const allowMultipleAttribute = this.hasAttribute("multiple") || this.hasAttribute("multi");
     if (_SelectableItemsElement._multipleModifierActive == true && allowMultipleAttribute == true) {
+      const allSelected = this.selected();
+      console.log(allSelected);
       for (const element of this.selected()) {
         selected.add(element);
       }
