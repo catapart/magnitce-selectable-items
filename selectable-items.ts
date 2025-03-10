@@ -159,8 +159,6 @@ export class SelectableItemsElement extends HTMLElement
         const allowMultipleAttribute = this.hasAttribute('multiple') || this.hasAttribute('multi');
         if(SelectableItemsElement._multipleModifierActive == true && allowMultipleAttribute == true)
         {
-            const allSelected = this.selected();
-            console.log(allSelected);
             for(const element of this.selected())
             {
                 selected.add(element);

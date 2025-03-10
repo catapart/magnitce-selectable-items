@@ -114,8 +114,6 @@ var SelectableItemsElement = class _SelectableItemsElement extends HTMLElement {
     const selected = /* @__PURE__ */ new Set([selectedItem]);
     const allowMultipleAttribute = this.hasAttribute("multiple") || this.hasAttribute("multi");
     if (_SelectableItemsElement._multipleModifierActive == true && allowMultipleAttribute == true) {
-      const allSelected = this.selected();
-      console.log(allSelected);
       for (const element of this.selected()) {
         selected.add(element);
       }
