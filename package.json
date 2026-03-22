@@ -1,43 +1,47 @@
 {
   "name": "@magnit-ce/selectable-items",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "description": "A custom html element that makes all of its child elements selectable by clicking on them.",
-  "type": "module",
-  "main": "dist/selectable-items.js",
-  "module": "dist/selectable-items.mjs",
+  "main": "dist/selectable-items.umd.js",
+  "module": "dist/selectable-items.js",
   "types": "dist/selectable-items.d.ts",
+  "type": "module",
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "tsup selectable-items.ts --format cjs,esm --dts --clean",
-    "build-vanilla": "tsup selectable-items.ts --format esm --dts --clean --outDir ./vanilla",
-    "minify": "tsup selectable-items.ts --format esm --config ./tsup.config.min.ts --outDir ./vanilla --minify",
-    "lint": "tsup selectable-items.ts --format esm --tsconfig ./tsconfig.lint.json",
-    "package": "npm run build && npm run build-vanilla && npm run minify",
-    "release": "npm run package && changeset publish"
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "build-tests": "vite build --config vite.config.tests.ts",
+    "changeset": "npx @changesets/cli",
+    "release": "npm run build && npx @changesets/cli publish"
   },
   "keywords": [
     "custom",
     "element",
     "html",
+    "browser",
     "list",
     "select",
     "choice",
     "option",
     "choose"
   ],
+  "devDependencies": {
+    "@changesets/cli": "^2.27.7",
+    "@magnit-ce/test-runner": "^0.0.8",
+    "@rollup/plugin-terser": "^1.0.0",
+    "changesets": "^1.0.2",
+    "glob": "^13.0.0",
+    "typescript": "^5.5.3",
+    "vite": "^8.0.0",
+    "vite-plugin-dts": "^4.5.4"
+  },
   "author": "catapart",
   "license": "CC0-1.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/catapart/magnitce-selectable-items"
-  },
-  "devDependencies": {
-    "@changesets/cli": "^2.27.7",
-    "minify": "^11.4.0",
-    "terser": "^5.31.3",
-    "tsup": "^8.2.0",
-    "typescript": "^5.5.3"
   }
 }

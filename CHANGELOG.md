@@ -1,5 +1,17 @@
 # @magnit-ce/selectable-items
 
+## 0.1.4
+
+### Patch Changes
+
+- b12a67d: updated event dispatch
+
+## 0.1.3
+
+### Patch Changes
+
+- d8ec0d4: cleaned up comments
+
 ## 0.1.2
 
 ### Patch Changes
